@@ -141,7 +141,6 @@ router.post("/user/update", (req, res) => {
                         if (err) {
                           res.json({ message: err });
                         } else {
-                          //   res.json({ message: "Register succès" });
                           console.log("email update");
                         }
                       }
@@ -158,7 +157,6 @@ router.post("/user/update", (req, res) => {
                           if (err) {
                             res.json({ message: err });
                           } else {
-                            //   res.json({ message: "Register succès" });
                             console.log("password update");
                           }
                         }
@@ -172,7 +170,6 @@ router.post("/user/update", (req, res) => {
                         if (err) {
                           res.json(err);
                         } else {
-                          //   res.json({ message: "Register succès" });
                           console.log("username update");
                         }
                       }
@@ -185,7 +182,6 @@ router.post("/user/update", (req, res) => {
                         if (err) {
                           res.json({ message: err });
                         } else {
-                          //   res.json({ message: "Register succès" });
                           console.log("name update");
                         }
                       }
