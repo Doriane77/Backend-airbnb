@@ -5,7 +5,6 @@ const formidable = require("express-formidable");
 const app = express();
 app.use(cors());
 app.use(formidable());
-// app.use(express.json());
 
 const userRoutes = require("./Routes/user");
 app.use(userRoutes);
@@ -19,5 +18,3 @@ app.all("*", (req, res) => {
 app.listen(3000, () => {
   console.log("Server started");
 });
-
-// Cours MySQL

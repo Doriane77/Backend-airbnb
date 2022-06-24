@@ -198,7 +198,6 @@ router.post("/user/update", (req, res) => {
                         if (err) {
                           res.json({ message: err });
                         } else {
-                          //   res.json({ message: "Register succès" });
                           console.log("description update");
                         }
                       }
