@@ -20,7 +20,7 @@ router.get("/rooms", (req, res) => {
 router.post("/room/publish", isAuthenticated, (req, res) => {
   try {
     const { title, description, price, lat, lng, userId } = req.fields;
-    const photo = req.files;
+    const photo = req.files.photo.path;
     console.log(
       "title :",
       title,
@@ -32,21 +32,28 @@ router.post("/room/publish", isAuthenticated, (req, res) => {
       lat,
       "lng :",
       lng
-      // "Photo : ",
-      // photo
     );
-    console.log("PHOTO ====>", photo.File);
+    console.log("PHOTO ====>", photo);
     if (title && description && price && lat && lng && photo) {
       console.log("poster une offre");
       db.query(
-        `INSERT INTO room SET title="${title}", description="${description}",price="${price}",lat="${lat}",lng="${lng},user="${userId}"`,
+        `INSERT INTO room SET title="${title}", description="${description}", price="${price}", lat="${lat}", lng="${lng}", user="${userId}", photo="${photo}"`,
         (err, result) => {
           if (err) {
             res.json(err);
           } else {
-            console.log(result);
-            // db.query(`INSERT INTO room (photo) VALUES(LOAD_FILE("${photo}"))`);
-            res.json({ message: "poster une offre" });
+            console.log("result :", result);
+            db.query(
+              `SELECT id,title,description,price,lat,lng,photo,user FROM room WHERE title="${title}"`,
+              (err, result) => {
+                if (err) {
+                  res.json(err);
+                } else {
+                  res.json({ message: result });
+                }
+              }
+            );
+            // res.json({ message: "poster une offre" });
           }
         }
       );
