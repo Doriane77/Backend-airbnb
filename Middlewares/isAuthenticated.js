@@ -1,4 +1,4 @@
-const db = require("../databaseConfig");
+const db = require("../Config/databaseConfig");
 
 const isAuthenticated = (req, res, next) => {
   try {
