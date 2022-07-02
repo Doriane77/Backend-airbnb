@@ -1,5 +1,5 @@
 const db = require("../Config/databaseConfig");
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require("../Config/cloudinaryConfig");
 
 const allRoom = (req, res) => {
   try {
@@ -7,7 +7,15 @@ const allRoom = (req, res) => {
       if (err) {
         res.json(err);
       } else {
-        res.json(result);
+        console.log(result);
+        const resulta = result;
+        const tab = result[0].photo;
+        resulta[0].photo = Buffer.from(tab);
+        // console.log("RESULTA :", resulta[0].photo.toJSON());
+
+        // console.log("result :", result[0].photo.toJSON());
+        console.log(resulta);
+        res.json(resulta);
       }
     });
   } catch (error) {
@@ -15,10 +23,10 @@ const allRoom = (req, res) => {
   }
 };
 
-const publishRoom = (req, res) => {
+const publishRoom = async (req, res) => {
   try {
     const { title, description, price, lat, lng, userId } = req.fields;
-    const photo = req.files.photo.path;
+
     console.log(
       "title :",
       title,
@@ -31,24 +39,58 @@ const publishRoom = (req, res) => {
       "lng :",
       lng
     );
+    const photo = req.files.photo.path;
+
     console.log("PHOTO ====>", photo);
+
+    const picture = await cloudinary.uploader.upload(photo, {
+      folder: `/Airbnb/rooms/`,
+    });
+    console.log("type de picture :", typeof picture);
+
     if (title && description && price && lat && lng && photo) {
-      console.log("poster une offre");
+      console.log("VALIDER");
 
       db.query(
-        `INSERT INTO room SET title="${title}", description="${description}", price="${price}", lat="${lat}", lng="${lng}", user="${userId}", photo="${photo}"`,
+        `INSERT INTO room SET title="${title}", description="${description}", price="${price}", lat="${lat}", lng="${lng}", user="${userId}", photo="${picture}"`,
         (err, result) => {
           if (err) {
             res.json(err);
           } else {
             console.log("result :", result);
+            console.log("INSERT OK");
+
             db.query(
               `SELECT id,title,description,price,lat,lng,photo,user FROM room WHERE title="${title}"`,
-              (err, result) => {
+              async (err, result) => {
                 if (err) {
                   res.json(err);
                 } else {
-                  res.json({ message: result });
+                  console.log("SELECT OK");
+                  console.log("result :", result);
+
+                  res.json(result);
+
+                  /*  const picture = await cloudinary.uploader.upload(photo, {
+                    folder: `/Airbnb/rooms/${result.id}`,
+                  });
+                  console.log(picture);
+                  db.query(
+                    `UPDATE room SET photo=${picture} WHERE id=${result.id} `,
+                    (err, result) => {
+                      if (err) {
+                        res.json(err);
+                      } else {
+                        db.query(
+                          `SELECT id,title,description,price,lat,lng,photo,user FROM room WHERE id=${id}"`,
+                          (err, result) => {
+                            res.json(result);
+                          }
+                        );
+                      }
+                    }
+                  );
+                  res.json({ message: result });*/
                 }
               }
             );
