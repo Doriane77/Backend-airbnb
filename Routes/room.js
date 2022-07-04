@@ -10,5 +10,6 @@ const controller = require("../Controllers/room");
 
 router.get("/rooms", controller.allRoom);
 router.post("/room/publish", isAuthenticated, controller.publishRoom);
+router.post("/room/delete", isAuthenticated, controller.deleteRoom);
 
 module.exports = router;
