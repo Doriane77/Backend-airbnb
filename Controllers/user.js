@@ -1,7 +1,9 @@
 const SHA256 = require("crypto-js/sha256");
 const encBase64 = require("crypto-js/enc-base64");
 const uid2 = require("uid2");
+
 const db = require("../Config/databaseConfig");
+const cloudinary = require("../Config/cloudinaryConfig");
 
 const login = (req, res) => {
   try {
@@ -91,14 +93,16 @@ const register = (req, res) => {
 };
 const allUser = (req, res) => {
   try {
-    db.query("SELECT * FROM users", (err, result) => {
-      if (err) {
-        res.json({ message: err });
-      } else {
-        console.log("result =>", result);
-        res.json(result);
+    db.query(
+      "SELECT id,email,username,name,description,token FROM users",
+      (err, result) => {
+        if (err) {
+          res.json({ message: err });
+        } else {
+          res.json(result);
+        }
       }
-    });
+    );
   } catch (error) {
     res.json({ message: error });
   }
@@ -206,21 +210,45 @@ const userDelete = (req, res) => {
   try {
     const userId = req.fields.userId;
 
-    db.query(`SELECT * FROM room WHERE user="${userId}"`, (err, result) => {
-      if (err) {
-        res.json(err);
-      } else {
-        res.json(result);
-      }
-    });
+    db.query(
+      `SELECT * FROM room WHERE user="${userId}"`,
+      async (err, result) => {
+        if (err) {
+          res.json(err);
+        } else {
+          for (let i = 0; i < result.length; i++) {
+            const obj = result[i].photo;
+            const resulta = JSON.parse(obj);
+            const pictureId = resulta.public_id;
 
-    /* db.query(`DELETE FROM users WHERE id ="${userId}"`, (err, result) => {
-      if (err) {
-        res.json({ message: err });
-      } else {
-        res.json({ message: "Delete succès" });
+            const deletePicture = await cloudinary.uploader.destroy(pictureId);
+
+            if (deletePicture.result === "ok") {
+              db.query(
+                `DELETE FROM room WHERE id=${result[i].id}`,
+                (err, result) => {
+                  if (err) {
+                    res.json(err);
+                  } else {
+                    db.query(
+                      `DELETE FROM users WHERE id ="${userId}"`,
+                      (err, result) => {
+                        if (err) {
+                          res.json({ message: err });
+                        }
+                      }
+                    );
+                  }
+                }
+              );
+            } else {
+              res.json({ message: "Error for delete image" });
+            }
+          }
+          res.json({ message: "Delete succès" });
+        }
       }
-    });*/
+    );
   } catch (error) {
     res.json({ message: error });
   }
