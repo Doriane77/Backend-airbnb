@@ -19,7 +19,7 @@ const login = (req, res) => {
 
             if (result[0].hash === hash) {
               db.query(
-                `SELECT id,email,username,name,description,token FROM users WHERE email = "${email}"`,
+                `SELECT userId,email,username,name,description,token FROM users WHERE email = "${email}"`,
                 (err, result) => {
                   if (err) {
                     res.json(err);
@@ -109,9 +109,9 @@ const allUser = (req, res) => {
 };
 const userUpdate = (req, res) => {
   try {
-    const { id, email, password, username, name, description } = req.fields;
+    const { userId, email, password, username, name, description } = req.fields;
 
-    if (id) {
+    if (userId) {
       db.query(`SELECT email,username FROM users`, (err, result) => {
         if (err) {
           res.json(err);
@@ -123,14 +123,14 @@ const userUpdate = (req, res) => {
             res.json({ message: "Email or Username already used" });
           } else {
             db.query(
-              `SELECT * FROM users WHERE id = "${id}"`,
+              `SELECT * FROM users WHERE id = "${userId}"`,
               (err, result) => {
                 if (err) {
                   res.json(err);
                 } else {
                   if (email) {
                     db.query(
-                      `UPDATE users SET email="${email}"  WHERE id="${id}"`,
+                      `UPDATE users SET email="${email}"  WHERE id="${userId}"`,
                       (err, result) => {
                         if (err) {
                           res.json({ message: err });
@@ -146,7 +146,7 @@ const userUpdate = (req, res) => {
                     );
                     if (result[0].hash !== hash) {
                       db.query(
-                        `UPDATE users SET hash="${hash}" WHERE id="${id}"`,
+                        `UPDATE users SET hash="${hash}" WHERE id="${userId}"`,
                         (err, result) => {
                           if (err) {
                             res.json({ message: err });
@@ -159,7 +159,7 @@ const userUpdate = (req, res) => {
                   }
                   if (username) {
                     db.query(
-                      `UPDATE users SET  username="${username}" WHERE id="${id}"`,
+                      `UPDATE users SET  username="${username}" WHERE id="${userId}"`,
                       (err, result) => {
                         if (err) {
                           res.json(err);
@@ -171,7 +171,7 @@ const userUpdate = (req, res) => {
                   }
                   if (name) {
                     db.query(
-                      `UPDATE users SET name="${name}" WHERE id="${id}"`,
+                      `UPDATE users SET name="${name}" WHERE id="${userId}"`,
                       (err, result) => {
                         if (err) {
                           res.json({ message: err });
@@ -183,7 +183,7 @@ const userUpdate = (req, res) => {
                   }
                   if (description) {
                     db.query(
-                      `UPDATE users SET description="${description}" WHERE id="${id}"`,
+                      `UPDATE users SET description="${description}" WHERE id="${userId}"`,
                       (err, result) => {
                         if (err) {
                           res.json({ message: err });
@@ -225,13 +225,13 @@ const userDelete = (req, res) => {
 
             if (deletePicture.result === "ok") {
               db.query(
-                `DELETE FROM room WHERE id=${result[i].id}`,
+                `DELETE FROM room WHERE userId=${result[i].userId}`,
                 (err, result) => {
                   if (err) {
                     res.json(err);
                   } else {
                     db.query(
-                      `DELETE FROM users WHERE id ="${userId}"`,
+                      `DELETE FROM users WHERE userId ="${userId}"`,
                       (err, result) => {
                         if (err) {
                           res.json({ message: err });
