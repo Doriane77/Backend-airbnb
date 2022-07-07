@@ -8,6 +8,7 @@ const isAuthenticated = require("../Middlewares/isAuthenticated");
 const controller = require("../Controllers/room");
 
 router.get("/rooms", controller.allRoom);
+router.get("/rooms/user/:id", controller.roomsUser);
 router.post("/room/publish", isAuthenticated, controller.publishRoom);
 router.post("/room/delete", isAuthenticated, controller.deleteRoom);
 router.post("/room/update", isAuthenticated, controller.updateRoom);
