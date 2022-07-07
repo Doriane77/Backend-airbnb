@@ -201,4 +201,29 @@ const updateRoom = (req, res) => {
     res.json(error);
   }
 };
-module.exports = { allRoom, publishRoom, deleteRoom, updateRoom };
+
+const roomsUser = (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (userId) {
+      db.query(`SELECT * FROM room WHERE user=${userId}`, (err, result) => {
+        if (err) {
+          res.json(err);
+        } else {
+          const resulta = result;
+          for (let i = 0; i < resulta.length; i++) {
+            const obj = result[i].photo;
+            resulta[i].photo = JSON.parse(obj);
+          }
+          res.json(resulta);
+        }
+      });
+    } else {
+      res.json({ message: "Missing userId " });
+    }
+  } catch (error) {
+    res.josn(error);
+  }
+};
+
+module.exports = { allRoom, publishRoom, deleteRoom, updateRoom, roomsUser };
