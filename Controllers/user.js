@@ -19,7 +19,7 @@ const login = (req, res) => {
 
             if (result[0].hash === hash) {
               db.query(
-                `SELECT userId,email,username,name,description,token FROM users WHERE email = "${email}"`,
+                `SELECT userId,email,username,name,description,photo,token FROM users WHERE email = "${email}"`,
                 (err, result) => {
                   if (err) {
                     res.json(err);
@@ -46,9 +46,18 @@ const login = (req, res) => {
 const register = (req, res) => {
   try {
     const { email, password, username, name, description } = req.fields;
+    const photo = req.files.photo.path;
+    const validPhoto = req.files.photo.name;
 
-    if (email && password && username && name && description) {
-      db.query(`SELECT email, username FROM users`, (err, result) => {
+    if (
+      email &&
+      password &&
+      username &&
+      name &&
+      description &&
+      validPhoto != ""
+    ) {
+      db.query(`SELECT email, username FROM users`, async (err, result) => {
         if (err) {
           res.json(err);
         } else {
@@ -56,12 +65,26 @@ const register = (req, res) => {
           const tabUsername = result.map((el) => el.username);
 
           if (!tabEmail.includes(email) && !tabUsername.includes(username)) {
+            const picture = await cloudinary.uploader.upload(photo, {
+              folder: `/Airbnb/users`,
+            });
+            const convertPicture = JSON.stringify(picture);
+
             const salt = uid2(16);
             const hash = SHA256(password + salt).toString(encBase64);
             const token = uid2(16);
             db.query(
-              "INSERT INTO users (email,username,name,description,token,hash,salt ) VALUES (?,?,?,?,?,?,?)",
-              [email, username, name, description, token, hash, salt],
+              "INSERT INTO users (email,username,name,description,photo,token,hash,salt ) VALUES (?,?,?,?,?,?,?,?)",
+              [
+                email,
+                username,
+                name,
+                description,
+                convertPicture,
+                token,
+                hash,
+                salt,
+              ],
               (err, result) => {
                 if (err) {
                   res.json({ message: err });
@@ -94,12 +117,17 @@ const register = (req, res) => {
 const allUser = (req, res) => {
   try {
     db.query(
-      "SELECT id,email,username,name,description,token FROM users",
+      "SELECT id,email,username,name,description,photo,token FROM users",
       (err, result) => {
         if (err) {
           res.json({ message: err });
         } else {
-          res.json(result);
+          const resulta = result;
+          for (let i = 0; i < resulta.length; i++) {
+            const obj = result[i].photo;
+            resulta[i].photo = JSON.parse(obj);
+          }
+          res.json(resulta);
         }
       }
     );
@@ -110,7 +138,7 @@ const allUser = (req, res) => {
 const userUpdate = (req, res) => {
   try {
     const { userId, email, password, username, name, description } = req.fields;
-
+    const photo = req.files.photo.path;
     if (userId) {
       db.query(`SELECT email,username FROM users`, (err, result) => {
         if (err) {
@@ -124,10 +152,11 @@ const userUpdate = (req, res) => {
           } else {
             db.query(
               `SELECT * FROM users WHERE id = "${userId}"`,
-              (err, result) => {
+              async (err, result) => {
                 if (err) {
                   res.json(err);
                 } else {
+                  const selectUser = result;
                   if (email) {
                     db.query(
                       `UPDATE users SET email="${email}"  WHERE id="${userId}"`,
@@ -193,7 +222,33 @@ const userUpdate = (req, res) => {
                       }
                     );
                   }
-                  res.json({ message: "Update succès" });
+                  if (req.files.photo.name != "") {
+                    const obj = selectUser[0].photo;
+                    const convertObj = JSON.parse(obj);
+                    const pictureId = convertObj.public_id;
+                    const deletePicture = await cloudinary.uploader.destroy(
+                      pictureId
+                    );
+
+                    if (deletePicture.result === "ok") {
+                      const picture = await cloudinary.uploader.upload(photo, {
+                        folder: `/Airbnb/users`,
+                      });
+                      const convertPicture = JSON.stringify(picture);
+                      db.query(
+                        `UPDATE users SET photo='${convertPicture}' WHERE id=${userId}`,
+                        (err, result) => {
+                          if (err) {
+                            res.json(err);
+                          } else {
+                            res.json({ message: "Update succès" });
+                          }
+                        }
+                      );
+                    }
+                  } else {
+                    res.json({ message: "Update succès" });
+                  }
                 }
               }
             );
@@ -222,22 +277,14 @@ const userDelete = (req, res) => {
             const pictureId = resulta.public_id;
 
             const deletePicture = await cloudinary.uploader.destroy(pictureId);
-
+            console.log(deletePicture);
+            console.log(result[i].id);
             if (deletePicture.result === "ok") {
               db.query(
-                `DELETE FROM room WHERE userId=${result[i].userId}`,
+                `DELETE FROM room WHERE id=${result[i].id}`,
                 (err, result) => {
                   if (err) {
                     res.json(err);
-                  } else {
-                    db.query(
-                      `DELETE FROM users WHERE userId ="${userId}"`,
-                      (err, result) => {
-                        if (err) {
-                          res.json({ message: err });
-                        }
-                      }
-                    );
                   }
                 }
               );
@@ -245,7 +292,43 @@ const userDelete = (req, res) => {
               res.json({ message: "Error for delete image" });
             }
           }
-          res.json({ message: "Delete succès" });
+
+          db.query(
+            `SELECT photo FROM users WHERE id=${userId}`,
+            async (err, result) => {
+              if (err) {
+                res.json(err);
+              } else {
+                const obj = result[0].photo;
+                const convertObj = JSON.parse(obj);
+                const pictureId = convertObj.public_id;
+
+                console.log("pictureId :", pictureId);
+                const deletePicture = await cloudinary.uploader.destroy(
+                  pictureId
+                );
+
+                console.log("Delete user picture :", deletePicture);
+
+                if (deletePicture.result == "ok") {
+                  db.query(
+                    `DELETE FROM users WHERE id ="${userId}"`,
+                    (err, result) => {
+                      if (err) {
+                        res.json({ message: err });
+                      } else {
+                        res.json({ message: "Delete succès" });
+                      }
+                    }
+                  );
+                } else {
+                  res.json({
+                    message: "Error for delete user photo",
+                  });
+                }
+              }
+            }
+          );
         }
       }
     );

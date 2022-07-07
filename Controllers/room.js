@@ -38,9 +38,6 @@ const publishRoom = async (req, res) => {
           if (err) {
             res.json(err);
           } else {
-            console.log("result :", result);
-            console.log("INSERT OK");
-
             db.query(
               `SELECT id,title,description,price,lat,lng,photo,user FROM room WHERE title="${title}"`,
               async (err, result) => {
