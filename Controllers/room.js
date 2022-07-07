@@ -3,16 +3,50 @@ const cloudinary = require("../Config/cloudinaryConfig");
 
 const allRoom = (req, res) => {
   try {
-    db.query("SELECT * FROM room", (err, result) => {
+    const { title, maxPrice } = req.query;
+
+    db.query(`SELECT * FROM room`, async (err, result) => {
       if (err) {
         res.json(err);
       } else {
+        let tab = [];
+        console.log("tab :", tab);
         const resulta = result;
+
         for (let i = 0; i < resulta.length; i++) {
           const obj = result[i].photo;
           resulta[i].photo = JSON.parse(obj);
+
+          if (title || maxPrice) {
+            if (
+              resulta[i].title.includes(title) &&
+              resulta[i].price <= +maxPrice
+            ) {
+              console.log("title & price");
+              tab.push(resulta[i]);
+            } else {
+              if (title && maxPrice === undefined) {
+                if (resulta[i].title.includes(title)) {
+                  console.log("title");
+                  tab.push(resulta[i]);
+                }
+              }
+              if (maxPrice && title === undefined) {
+                if (resulta[i].price <= maxPrice) {
+                  console.log("price");
+                  tab.push(resulta[i]);
+                }
+              }
+            }
+          }
         }
-        res.json(resulta);
+        if (title || maxPrice) {
+          console.log("TAB :");
+          return res.json(tab);
+        } else {
+          console.log("resulta");
+          res.json(resulta);
+        }
       }
     });
   } catch (error) {
