@@ -1,50 +1,57 @@
 const db = require("../Config/databaseConfig");
 const cloudinary = require("../Config/cloudinaryConfig");
+const { unsubscribe } = require("../Routes/user");
 
 const allRoom = (req, res) => {
   try {
-    const { title, maxPrice } = req.query;
+    const { title, maxPrice, minPrice } = req.query;
 
     db.query(`SELECT * FROM room`, async (err, result) => {
       if (err) {
         res.json(err);
       } else {
         let tab = [];
-        console.log("tab :", tab);
         const resulta = result;
 
         for (let i = 0; i < resulta.length; i++) {
           const obj = result[i].photo;
           resulta[i].photo = JSON.parse(obj);
 
-          if (title || maxPrice) {
+          if (title || maxPrice || minPrice) {
             if (
               resulta[i].title.includes(title) &&
-              resulta[i].price <= +maxPrice
+              resulta[i].price <= +maxPrice &&
+              resulta[i].price >= +minPrice
             ) {
-              console.log("title & price");
               tab.push(resulta[i]);
-            } else {
-              if (title && maxPrice === undefined) {
-                if (resulta[i].title.includes(title)) {
-                  console.log("title");
-                  tab.push(resulta[i]);
-                }
-              }
-              if (maxPrice && title === undefined) {
-                if (resulta[i].price <= maxPrice) {
-                  console.log("price");
-                  tab.push(resulta[i]);
-                }
+            }
+            if (
+              (resulta[i].title.includes(title) &&
+                resulta[i].price >= +minPrice) ||
+              (resulta[i].title.includes(title) &&
+                resulta[i].price <= +maxPrice) ||
+              (resulta[i].price <= +maxPrice && resulta[i].price >= +minPrice)
+            ) {
+              tab.push(resulta[i]);
+            }
+            if (
+              (title && maxPrice === undefined && minPrice === undefined) ||
+              (maxPrice && title === undefined && minPrice === undefined) ||
+              (minPrice && title === undefined && maxPrice === undefined)
+            ) {
+              if (
+                resulta[i].title.includes(title) ||
+                resulta[i].price <= +maxPrice ||
+                resulta[i].price >= +minPrice
+              ) {
+                tab.push(resulta[i]);
               }
             }
           }
         }
-        if (title || maxPrice) {
-          console.log("TAB :");
+        if (title || maxPrice || minPrice) {
           return res.json(tab);
         } else {
-          console.log("resulta");
           res.json(resulta);
         }
       }
