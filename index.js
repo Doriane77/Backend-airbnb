@@ -16,6 +16,6 @@ app.use(roomRoutes);
 app.all("*", (req, res) => {
   res.status(404).send("Page introuvable");
 });
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log("Server started");
 });
