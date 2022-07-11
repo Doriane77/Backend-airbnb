@@ -163,8 +163,6 @@ const userUpdate = (req, res) => {
                       (err, result) => {
                         if (err) {
                           res.json({ message: err });
-                        } else {
-                          console.log("email update");
                         }
                       }
                     );
@@ -179,8 +177,6 @@ const userUpdate = (req, res) => {
                         (err, result) => {
                           if (err) {
                             res.json({ message: err });
-                          } else {
-                            console.log("password update");
                           }
                         }
                       );
@@ -192,8 +188,6 @@ const userUpdate = (req, res) => {
                       (err, result) => {
                         if (err) {
                           res.json(err);
-                        } else {
-                          console.log("username update");
                         }
                       }
                     );
@@ -204,8 +198,6 @@ const userUpdate = (req, res) => {
                       (err, result) => {
                         if (err) {
                           res.json({ message: err });
-                        } else {
-                          console.log("name update");
                         }
                       }
                     );
@@ -216,8 +208,6 @@ const userUpdate = (req, res) => {
                       (err, result) => {
                         if (err) {
                           res.json({ message: err });
-                        } else {
-                          console.log("description update");
                         }
                       }
                     );
@@ -277,8 +267,7 @@ const userDelete = (req, res) => {
             const pictureId = resulta.public_id;
 
             const deletePicture = await cloudinary.uploader.destroy(pictureId);
-            console.log(deletePicture);
-            console.log(result[i].id);
+
             if (deletePicture.result === "ok") {
               db.query(
                 `DELETE FROM room WHERE id=${result[i].id}`,
@@ -303,12 +292,9 @@ const userDelete = (req, res) => {
                 const convertObj = JSON.parse(obj);
                 const pictureId = convertObj.public_id;
 
-                console.log("pictureId :", pictureId);
                 const deletePicture = await cloudinary.uploader.destroy(
                   pictureId
                 );
-
-                console.log("Delete user picture :", deletePicture);
 
                 if (deletePicture.result == "ok") {
                   db.query(

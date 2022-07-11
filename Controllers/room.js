@@ -135,7 +135,6 @@ const deleteRoom = (req, res) => {
                 if (err) {
                   res.json(err);
                 } else {
-                  console.log(result);
                   res.json({ message: "Room deleted" });
                 }
               });
@@ -163,8 +162,6 @@ const updateRoom = (req, res) => {
           (err, result) => {
             if (err) {
               res.json(err);
-            } else {
-              console.log("title updade");
             }
           }
         );
@@ -175,8 +172,6 @@ const updateRoom = (req, res) => {
           (err, result) => {
             if (err) {
               res.json(err);
-            } else {
-              console.log("description update");
             }
           }
         );
@@ -187,8 +182,6 @@ const updateRoom = (req, res) => {
           (err, result) => {
             if (err) {
               res.json(err);
-            } else {
-              console.log("prise update");
             }
           }
         );
@@ -197,8 +190,6 @@ const updateRoom = (req, res) => {
         db.query(``, (err, result) => {
           if (err) {
             res.json(err);
-          } else {
-            console.log("lat and lng update");
           }
         });
       }
@@ -232,8 +223,6 @@ const updateRoom = (req, res) => {
                     if (err) {
                       res.json(err);
                     } else {
-                      console.log("update photo :", result);
-                      console.log("photo update");
                       res.json({ message: "Update room and picture" });
                     }
                   }
