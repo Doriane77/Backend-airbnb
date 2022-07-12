@@ -7,7 +7,7 @@ const db = mysql.createConnection({
   password: process.env.SQL_PASSWORD,
   database: process.env.SQL_DATABASE,
 });
-// database: "airbnb",
+
 db.connect(function (err) {
   if (err) throw err;
   console.log("Vous êtes bien connecter à la base de données MySQL !");
