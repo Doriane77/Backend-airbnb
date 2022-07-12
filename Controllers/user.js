@@ -46,9 +46,12 @@ const login = (req, res) => {
 const register = (req, res) => {
   try {
     const { email, password, username, name, description } = req.fields;
+
+    if (req.files.photo === undefined) {
+      return res.json({ message: "Missing fileds" });
+    }
     const photo = req.files.photo.path;
     const validPhoto = req.files.photo.name;
-
     if (
       email &&
       password &&
