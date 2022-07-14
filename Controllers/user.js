@@ -19,7 +19,7 @@ const login = (req, res) => {
 
             if (result[0].hash === hash) {
               db.query(
-                `SELECT userId,email,username,name,description,photo,token FROM users WHERE email = "${email}"`,
+                `SELECT id,email,username,name,description,photo,token FROM users WHERE email="${email}"`,
                 (err, result) => {
                   if (err) {
                     res.json(err);
