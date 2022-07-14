@@ -10,6 +10,7 @@ const login = (req, res) => {
     const { email, password } = req.fields;
 
     if (email && password) {
+      console.log(email, password);
       db.query(`SELECT * FROM users WHERE email="${email}" `, (err, result) => {
         if (err) {
           res.json(err);
@@ -24,7 +25,11 @@ const login = (req, res) => {
                   if (err) {
                     res.json(err);
                   } else {
-                    res.json(result);
+                    const resulta = result;
+                    const obj = result[0].photo;
+                    resulta[0].photo = JSON.parse(obj);
+                    console.log("result :", resulta);
+                    res.json(resulta);
                   }
                 }
               );
