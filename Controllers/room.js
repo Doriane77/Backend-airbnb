@@ -9,11 +9,11 @@ const allRoom = (req, res) => {
 
     let sort = "";
 
-    let page = 1;
-    let limit;
+    let page = 0;
+    let limit = 1;
 
     let maxPrice = 10000;
-    let minPrice = 1;
+    let minPrice = 10;
 
     if (req.query.sort === "price-desc") {
       sort = "DESC";
@@ -25,7 +25,7 @@ const allRoom = (req, res) => {
     if (Number(req.query.page) > 0) {
       page = Number(req.query.page);
     } else {
-      page = 1;
+      page = 0;
     }
     if (Number(req.query.limit) > 0) {
       limit = Number(req.query.limit);
@@ -50,7 +50,6 @@ const allRoom = (req, res) => {
         sql = `SELECT * FROM room WHERE (title LIKE '%${title}%' AND price BETWEEN ${minPrice} AND ${maxPrice} +5) ORDER BY price ${sort} LIMIT ${page},${limit}`;
       }
     }
-
     db.query(sql, async (err, result) => {
       if (err) {
         res.json(err);
