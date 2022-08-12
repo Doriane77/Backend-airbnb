@@ -40,6 +40,9 @@ const allRoom = (req, res) => {
       minPrice = Number(req.query.minPrice);
     }
 
+    // let sql = `Select * FROM room INNER JOIN users ON room.user = users.id ORDER BY price ${sort} LIMIT ${page},${limit}`;
+    // let sql = `Select * FROM room LEFT JOIN users ON room.user = users.id ORDER BY price ${sort} LIMIT ${page},${limit}`;
+
     let sql = `Select * FROM room ORDER BY price ${sort} LIMIT ${page},${limit}`;
 
     if (title || maxPrice || minPrice) {
@@ -50,19 +53,20 @@ const allRoom = (req, res) => {
         sql = `SELECT * FROM room WHERE (title LIKE '%${title}%' AND price BETWEEN ${minPrice} AND ${maxPrice} +5) ORDER BY price ${sort} LIMIT ${page},${limit}`;
       }
     }
+
     db.query(sql, async (err, result) => {
       if (err) {
         res.json(err);
       } else {
-        let tab = [];
         const resulta = result;
 
         for (let i = 0; i < resulta.length; i++) {
           const obj = result[i].photo;
           resulta[i].photo = JSON.parse(obj);
+          console.log("user :", resulta[i].user);
         }
 
-        res.json(result);
+        res.json(resulta);
       }
     });
   } catch (error) {
@@ -265,4 +269,37 @@ const roomsUser = (req, res) => {
   }
 };
 
-module.exports = { allRoom, publishRoom, deleteRoom, updateRoom, roomsUser };
+const oneRoom = (req, res) => {
+  try {
+    const roomId = req.params.id;
+
+    let sql = `Select * From room WHERE id=${roomId}`;
+    db.query(sql, (err, result) => {
+      if (err) {
+        res.json(err);
+      } else {
+        if (result.length <= 0) {
+          res.json({ message: "room not exiting" });
+        } else {
+          const resulta = result;
+          for (let i = 0; i < resulta.length; i++) {
+            const obj = result[i].photo;
+            resulta[i].photo = JSON.parse(obj);
+          }
+          res.json(resulta);
+        }
+      }
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+module.exports = {
+  allRoom,
+  publishRoom,
+  deleteRoom,
+  updateRoom,
+  roomsUser,
+  oneRoom,
+};
