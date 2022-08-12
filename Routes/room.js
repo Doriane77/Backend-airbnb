@@ -7,6 +7,7 @@ const router = express.Router();
 const isAuthenticated = require("../Middlewares/isAuthenticated");
 const controller = require("../Controllers/room");
 
+router.get("/room/:id", controller.oneRoom);
 router.get("/rooms", controller.allRoom);
 router.get("/rooms/user/:id", controller.roomsUser);
 router.post("/room/publish", isAuthenticated, controller.publishRoom);
