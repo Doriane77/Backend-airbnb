@@ -63,7 +63,6 @@ const allRoom = (req, res) => {
         for (let i = 0; i < resulta.length; i++) {
           const obj = result[i].photo;
           resulta[i].photo = JSON.parse(obj);
-          console.log("user :", resulta[i].user);
         }
 
         res.json(resulta);
