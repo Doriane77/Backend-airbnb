@@ -328,4 +328,23 @@ const userDelete = (req, res) => {
   }
 };
 
-module.exports = { login, register, allUser, userUpdate, userDelete };
+const oneUser = (req, res) => {
+  try {
+    const userId = req.params.id;
+    let sql = `Select id,email,username,photo FROM users WHERE id="${userId}"`;
+    db.query(sql, (err, result) => {
+      if (err) {
+        res.json(err);
+      } else {
+        const resulta = result;
+        const obj = result[0].photo;
+        resulta[0].photo = JSON.parse(obj);
+        res.json(resulta);
+      }
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+module.exports = { login, register, allUser, userUpdate, userDelete, oneUser };
