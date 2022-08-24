@@ -293,7 +293,28 @@ const oneRoom = (req, res) => {
     res.json(error);
   }
 };
+const roomAround = (req, res) => {
+  try {
+    const localisation = req.query;
 
+    let sql = `Select * FROM room `;
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        res.json(err);
+      } else {
+        const resulta = result;
+        for (let i = 0; i < resulta.length; i++) {
+          const obj = result[i].photo;
+          resulta[i].photo = JSON.parse(obj);
+        }
+        res.json(resulta);
+      }
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
 module.exports = {
   allRoom,
   publishRoom,
@@ -301,4 +322,5 @@ module.exports = {
   updateRoom,
   roomsUser,
   oneRoom,
+  roomAround,
 };
